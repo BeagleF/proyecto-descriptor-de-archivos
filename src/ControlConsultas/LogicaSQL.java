@@ -6,6 +6,7 @@ package ControlConsultas;
 
 import EstructurasDeDatosTemporales.DescriptorArchivos;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.Vector;
@@ -54,7 +55,8 @@ public class LogicaSQL {
         String[] accionesConsulta = this.consulta.split("\\s");//la consulta escrita por el usuario voy a guardar
         //cada palabra que ingreso en un arreglo de cadenas, para poder iterar entre ellas
         
-        System.out.println("Palabras de la consulta");int cont=0;
+        System.out.println("Palabras de la consulta");
+        int cont=0;
         for(String palabra:accionesConsulta){
             System.out.println(palabra + " :"+cont);
             cont++;
@@ -93,15 +95,33 @@ public class LogicaSQL {
             } 
             contador++;//el contador va a servir para indicar la posicion en la que se encuentra la cadena de la consulta
             //en el arreglo de accionesConsulta, porque se inicio en cero
+            if(cadenas.equals(";")){
+                //en caso de encontrarse con un ";" se debe terminar la la lectura, pues este caracter indica el fin
+                //de la consulta
+                break;
+            }
               
         }
        
+        System.out.println("Lo que se va a usar como contenido de la consulta:");
+        for(int i = 0;i<contador;i++){//aqui se muestra lo que se va a usar, y eso esta delimitado por el ";"
+            System.out.println(accionesConsulta[i] + " :"+i);
+            
+        }
+        if(accionesConsulta[contador-1].equals(";")==false){
+            System.out.println("ERROR: Toda consulta debe terminar con \";\" ");
+            return null;
+            
+        }
+        
+        
 
         Object[] llavesConsulta = auxiliar.keySet().toArray();//guardo los Comandos SQL encontrados en la consulta del
         //usuario
         int[] ordenInstrucciones = new int[llavesConsulta.length];//con un arreglo de enteros voy a saber en que orden se
         //ingresaron los Comandos SQL, porque como se menciono antes deben respetar un orden
-        
+        String[] instruccionesOrdenadas = new String[llavesConsulta.length];//guardo las instrucciones de la consulta
+        //del usuario, esto sirve para que este sincronizado con el arreglo de ordenInstrucciones
 //        for(int j=0;j<llavesConsulta.length;j++){//esto es solo para ver en que orden se guardan las llaves de un hashmap
 //            //y no se guardan en el orden en el que fueron registradas, parece ser aleatorio, por eso no se va a usar
 //            //en el orden de las llaves, porque no serviria
@@ -130,6 +150,7 @@ public class LogicaSQL {
             if(auxiliar.containsKey(ClausulasSQL[i])){
                 System.out.println("Intruccion " + ClausulasSQL[i] + " posicion " + auxiliar.get(ClausulasSQL[i]) );
                 ordenInstrucciones[control] = auxiliar.get(ClausulasSQL[i]);
+                instruccionesOrdenadas[control] = ClausulasSQL[i];
                 control++;
             }
         }
@@ -139,7 +160,15 @@ public class LogicaSQL {
             //de ordenInstrucciones tiene guardadas las posiciones de los comandos ingresados en la consulta
             if(accionesConsulta[ordenInstrucciones[i]+1].equals(",")){
             System.out.println("La sintaxis de la consulta no puede tener una coma seguida de un comando SQL");
-        }
+            }
+            if(i>0 && accionesConsulta[ordenInstrucciones[i]-1].equals(",")){// se comprueba que antes del comando
+                //SQL no se encuentre una coma, a excepcion de cuando se trate de un SELECT pues ese se encuentra al
+                //inicio y no tiene a nadie antes, un ejemplo de cuando se ejecuta esta condicion es:
+                //SELECT ID,NOMBRE,SALARIO, FROM employees; //como se ve hay una "," despues de salario que no le sigue
+                //ningun parametro, lo cual debe marcarse como un error
+                System.out.println(" ERROR: No puede haber una coma y despues un comando SQL");
+                return null;
+            }
         }
          
         
@@ -162,10 +191,84 @@ public class LogicaSQL {
             //y FROM pues sin ellas la consulta no podria seleccionar que cosa va a mostrar ni de donde va a sacar
             //su informacion
         }
+        ////HashMap<String,String[]> parametrosPorComando = new HashMap<>();
+        HashMap<String,ArrayList<String>> parametrosPorComando = new HashMap<>();
         
-        
-        
-        
+        System.out.println("Contador = :"+contador);
+        System.out.println("length " +llavesConsulta.length);
+        for(int i = 0;i<llavesConsulta.length;i++){//for que sirve para poner en un HashMap los parametros correspondientes
+            //a cada comando SQL, ejemplo a SELECT esta asociado ID a FROM employees  y asi
+
+            if(i==llavesConsulta.length-1){//esta condicion es para cuando me encuentre en la ultima instruccion ingresada
+                //como en esta no tengo una siguiente entonces los parametros de este comando van a ser los que esten 
+                //despues de el y antes del punto y coma
+                int cantParametros = contador - ordenInstrucciones[i] - 2;//la cantidad de parametros
+                //que se van a guardar por comando , a comparacion del siguiente debe ser 1 menos porque en la ultima 
+                //instruccion se puede llegar a encontrar con el ";" por lo que haciendo la resta del -2 ya no se
+                //va a meter entre los parametros
+                
+                ////String[] parametros = new String[cantParametros];
+                ArrayList<String> parametros = new ArrayList<>();
+                ////int ubi = 0;
+                for(int j = ordenInstrucciones[i]+1;j<contador-1;j++){
+                    if(accionesConsulta[j].equals(",")){//en caso de que se encuentre una coma eso no lo quiero guardar como
+                        //parametro de un comando, por lo que se ignora
+                    }else{
+                        //parametros[ubi] = accionesConsulta[j];
+                        //ubi++;
+                        parametros.add(accionesConsulta[j]);
+                    }
+                    
+                }
+                parametrosPorComando.put(instruccionesOrdenadas[i], parametros);
+                
+            }else{
+                int cantParametros = ordenInstrucciones[i+1] - ordenInstrucciones[i] - 1;//la cantidad de parametros
+                //que se van a guardar por comando son la resta de la ubicacion del comando siguiente al comando anterior
+                //ejemplo si esta el comando Select en la posicion 0 y el from en la 5, entonces quiero los parametros entre
+                //ese select y el from, que serian los parametros del SELECT, por lo que estarian en las posiciones 1,2,3,4
+                //o sea 4, y lo obtengo de 5-0-1=4
+                ////String[] parametros = new String[cantParametros];//se crea un arreglo de cadenas que va a tener dentro
+                //a los parametros asociados a cada comando SQL, se va reiniciando porque su cantidad de parametros es 
+                //distinta para cada comando
+                ////int ubi = 0;
+                ArrayList<String> parametros = new ArrayList<>();
+                for(int j = ordenInstrucciones[i] + 1;j<ordenInstrucciones[i+1];j++){//j debe ubicarse un espacio despues
+                    //del comando, por eso se pone el +1, y su ultima iteracion debe ser cuando valga 1 menos que
+                    //ordenInstrucciones[i+1] porque ahi se ubica el siguiente comando
+                    if(accionesConsulta[j].equals(",")){//en caso de que se encuentre una coma eso no lo quiero guardar como
+                        //parametro de un comando, por lo que se ignora
+                    }else{
+                        ////parametros[ubi] = accionesConsulta[j];// ORIGINALMENTE LO PUSE con un arreglo de cadenas
+                        //pero cuando agregue lo de que no se metan "," ahora el arreglo tenia espacios en null
+                        //porque las comas se encuentran en el arreglo de accionesConsulta, entonces con un 
+                        //ArrayList puedo solo poner a los elementos que necesito sin necesidad de saber cuantos voy
+                        //a meter, pero despues se va a tener que convertir a un String[] porque ese parametro acepta
+                        //la tabla de la vista
+                        ////ubi++;
+                        parametros.add(accionesConsulta[j]);
+                    }
+                }
+                parametrosPorComando.put(instruccionesOrdenadas[i], parametros);
+            }
+                
+        }//fin del for para crear el HashMap de parametros a cada comando
+//            for(int i = 0;i<llavesConsulta.length;i++){
+//                String[] dentro = parametrosPorComando.get(instruccionesOrdenadas[i]);
+//                System.out.println("Los parametros del comando " + instruccionesOrdenadas[i] + " son:");
+//                for(String param: dentro){
+//                    System.out.println("--" + param);
+//                }////// ESTO ES PARA IMPRIMIR EN CASO DE QUE USE UN ARREGLO DE CADENAS PARA GUARDAR LOS PARAMETROS
+                   ////// DE CADA COMANDO
+//            }
+            
+            for(int i = 0;i<llavesConsulta.length;i++){
+                ArrayList<String> dentro = parametrosPorComando.get(instruccionesOrdenadas[i]);
+                System.out.println("Los parametros del comando " + instruccionesOrdenadas[i] + " son:");
+                for(String param: dentro){
+                    System.out.println("--" + param);
+                }
+            }
         
         
         
@@ -213,7 +316,7 @@ public class LogicaSQL {
     }
     public static void main(String args[]){
         
-        LogicaSQL prueba = new LogicaSQL("SELECT \n ,DE, \n PRUEBA  FROM  WHERE j;","hola.txt");
+        LogicaSQL prueba = new LogicaSQL("SELECT \n DE, \n PRUEBA  FROM employees; WHERE j;","hola.txt");
         
         System.out.println("prueba = " + prueba.getConsulta());
         
@@ -223,18 +326,18 @@ public class LogicaSQL {
         prueba.comprobarSintaxis();
         
         
-        String p = "SELECT \n ,DE, \n PRUEBA  FROM  WHERE j;";
-        System.out.println(p);
-        p=p.replaceAll("\\n", " ");//estas son pruebas para la limpieza de la entrada de texto
-        p=p.replace(",", " , ");
-        p=p.replace(";", " ;");
-        p=p.replaceAll("\\s+", " ");
-        System.out.println(p);
-        String[] a = p.split("\\s");
-        System.out.println("p = " + p);
-        for(String b :a){
-            System.out.println("aqui: " + b);
-        }
+//        String p = "SELECT \n ,DE, \n PRUEBA  FROM employe WHERE j;";
+//        System.out.println(p);
+//        p=p.replaceAll("\\n", " ");//estas son pruebas para la limpieza de la entrada de texto
+//        p=p.replace(",", " , ");
+//        p=p.replace(";", " ;");
+//        p=p.replaceAll("\\s+", " ");
+//        System.out.println(p);
+//        String[] a = p.split("\\s");
+//        System.out.println("p = " + p);
+//        for(String b :a){
+//            System.out.println("aqui: " + b);
+//        }
         
     }
     
