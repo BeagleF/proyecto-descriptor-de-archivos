@@ -40,13 +40,26 @@ public class LogicaSQL {
     private void limpiarConsulta(){//la consulta que se va a recibir desde la ventana de consultas se adapta a un formato
         //sencillo de manejar, para poder asi ejecutar la consulta especifica que se solicita;
         this.consulta = this.consulta.toUpperCase();
-        this.consulta = this.consulta.replaceAll("\\n", ""); 
+        this.consulta = this.consulta.replaceAll("\\n", " ");//se remueven todos los saltos de linea
+        this.consulta = this.consulta.replace(","," , ");//se colocan en las comas un espacio a los lados
+        this.consulta = this.consulta.replace(";"," ;");//un punto y coma se le coloca un espacio antes
+        this.consulta = this.consulta.replaceAll("\\s+", " ");//se reemplazan en caso de haber mas de un
+        //espacio, por solo uno
+        
+        
     }
     
     private String[] comprobarSintaxis(){
         limpiarConsulta();//primero le quito los saltos de linea a la consulta que reciba
         String[] accionesConsulta = this.consulta.split("\\s");//la consulta escrita por el usuario voy a guardar
         //cada palabra que ingreso en un arreglo de cadenas, para poder iterar entre ellas
+        
+        System.out.println("Palabras de la consulta");int cont=0;
+        for(String palabra:accionesConsulta){
+            System.out.println(palabra + " :"+cont);
+            cont++;
+        }
+        
         int correcto = 0;
         int contador = 0;
         HashMap<String,Integer> auxiliar = new HashMap<>();//defino un hashmap, que me va a servir para escribir
@@ -61,6 +74,7 @@ public class LogicaSQL {
             
             return null;//el null retornado va a ser mi indicador de error
         }
+       
         
         for(String cadenas: accionesConsulta){//me voy a mover por todas las cadenas que contiene la consulta ingresada
             //para poder verificar las instrucciones SQL que contiene
@@ -111,7 +125,7 @@ public class LogicaSQL {
         //en la posicion 2 un valor de "6", singifica que entonces la consulta por ejemplo seria:
         //"SELECT id,name,department,salary,phone WHERE id==1 FROM employees", lo cual esta mal, porque el FROM debe estar antes
         //que el WHERE siempre.
-        //e
+        
         for(int i = 0;i<ClausulasSQL.length;i++){
             if(auxiliar.containsKey(ClausulasSQL[i])){
                 System.out.println("Intruccion " + ClausulasSQL[i] + " posicion " + auxiliar.get(ClausulasSQL[i]) );
@@ -119,6 +133,15 @@ public class LogicaSQL {
                 control++;
             }
         }
+        
+        for(int i=0;i<ordenInstrucciones.length;i++){//este for comprueba que despues de los comandos SQL escritos en
+            //la consulta del usuario no se encuentre inmediatamente una coma, esto es posible gracias a que el arreglo
+            //de ordenInstrucciones tiene guardadas las posiciones de los comandos ingresados en la consulta
+            if(accionesConsulta[ordenInstrucciones[i]+1].equals(",")){
+            System.out.println("La sintaxis de la consulta no puede tener una coma seguida de un comando SQL");
+        }
+        }
+         
         
         
         for(int j=0;j<llavesConsulta.length;j++){//aqui es donde se comprueba que las posiciones en el arreglo de ordenInstrucciones
@@ -190,7 +213,7 @@ public class LogicaSQL {
     }
     public static void main(String args[]){
         
-        LogicaSQL prueba = new LogicaSQL("SELECT \n DE \n PRUEBA  FROM  WHERE j","hola.txt");
+        LogicaSQL prueba = new LogicaSQL("SELECT \n ,DE, \n PRUEBA  FROM  WHERE j;","hola.txt");
         
         System.out.println("prueba = " + prueba.getConsulta());
         
@@ -198,6 +221,21 @@ public class LogicaSQL {
         System.out.println("prueba = " + prueba.getConsulta());
         
         prueba.comprobarSintaxis();
+        
+        
+        String p = "SELECT \n ,DE, \n PRUEBA  FROM  WHERE j;";
+        System.out.println(p);
+        p=p.replaceAll("\\n", " ");//estas son pruebas para la limpieza de la entrada de texto
+        p=p.replace(",", " , ");
+        p=p.replace(";", " ;");
+        p=p.replaceAll("\\s+", " ");
+        System.out.println(p);
+        String[] a = p.split("\\s");
+        System.out.println("p = " + p);
+        for(String b :a){
+            System.out.println("aqui: " + b);
+        }
+        
     }
     
 }
