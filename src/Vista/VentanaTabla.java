@@ -37,16 +37,22 @@ public class VentanaTabla extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        GenerarTabla = new javax.swing.JButton();
+        GenerarConsulta = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         Tabla = new javax.swing.JTable();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        TextAreaConsulta = new javax.swing.JTextArea();
+        HTrabajoEtiqueta = new javax.swing.JLabel();
+        ConsultaEtiqueta = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        GenerarTabla.setText("GenerarTabla");
-        GenerarTabla.addActionListener(new java.awt.event.ActionListener() {
+        GenerarConsulta.setText("Generar Consulta");
+        GenerarConsulta.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                GenerarTablaActionPerformed(evt);
+                GenerarConsultaActionPerformed(evt);
             }
         });
 
@@ -64,33 +70,65 @@ public class VentanaTabla extends javax.swing.JFrame {
         Tabla.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         jScrollPane1.setViewportView(Tabla);
 
+        jTextArea1.setColumns(20);
+        jTextArea1.setRows(5);
+        jScrollPane2.setViewportView(jTextArea1);
+
+        TextAreaConsulta.setColumns(20);
+        TextAreaConsulta.setRows(5);
+        jScrollPane3.setViewportView(TextAreaConsulta);
+
+        HTrabajoEtiqueta.setText("Hoja de Trabajo");
+
+        ConsultaEtiqueta.setText("Resultado de la Consulta");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(56, 56, 56)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 408, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 623, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(HTrabajoEtiqueta)
+                    .addComponent(ConsultaEtiqueta)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(GenerarTabla)))
-                .addGap(25, 25, 25))
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 518, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(GenerarConsulta)))
+                .addGap(13, 13, 13))
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jScrollPane1)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(139, 139, 139)
-                .addComponent(GenerarTabla)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 60, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(15, 15, 15))
+                .addGap(20, 20, 20)
+                .addComponent(HTrabajoEtiqueta)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(GenerarConsulta)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 48, Short.MAX_VALUE)
+                .addComponent(ConsultaEtiqueta)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 242, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(15, 15, 15))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap())))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void GenerarTablaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GenerarTablaActionPerformed
+    private void GenerarConsultaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GenerarConsultaActionPerformed
         DescriptorArchivos descriptor = new DescriptorArchivos("tabla.txt");
         try {
             
@@ -126,7 +164,7 @@ public class VentanaTabla extends javax.swing.JFrame {
         } catch (IOException ex) {
             Logger.getLogger(VentanaTabla.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }//GEN-LAST:event_GenerarTablaActionPerformed
+    }//GEN-LAST:event_GenerarConsultaActionPerformed
 
     /**
      * @param args the command line arguments
@@ -164,8 +202,14 @@ public class VentanaTabla extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton GenerarTabla;
+    private javax.swing.JLabel ConsultaEtiqueta;
+    private javax.swing.JButton GenerarConsulta;
+    private javax.swing.JLabel HTrabajoEtiqueta;
     private javax.swing.JTable Tabla;
+    private javax.swing.JTextArea TextAreaConsulta;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JTextArea jTextArea1;
     // End of variables declaration//GEN-END:variables
 }
