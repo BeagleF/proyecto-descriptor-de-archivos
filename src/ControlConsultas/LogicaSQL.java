@@ -172,6 +172,15 @@ public class LogicaSQL {
                 return null;
             }
         }
+        
+        for(int i=0;i<ordenInstrucciones.length-1;i++){//esto es para verificar que dos comandos SQL no se encuentren seguidos
+            //porque eso es un error
+            if((ordenInstrucciones[i] + 1) == ordenInstrucciones[i+1]){
+                System.out.println("ERROR: DOS COMANDOS SQL NO PUEDEN ESTAR SEGUIDOS, SE ENCONTRO:");
+                System.out.println(instruccionesOrdenadas[i]+" junto a " + instruccionesOrdenadas[i+1]);
+                return null;
+            }
+        }
          
         
         
@@ -408,6 +417,12 @@ public class LogicaSQL {
     
     public void ejecutarConsulta(){//falta agregar lo de comprobar sintaxis
         ParametrosConsulta recibe = diccionarioDeDatos();
+        
+        if(recibe == null){
+            System.out.println("ERROR: LA CONSULTA NO SE PUEDE EJECUTAR");
+            return;
+        }
+        
         String[] impresion = new String[recibe.getOrdenImpresion().length];//creo un arreglo de cadenas que va a tener
         //el tamanio especifico de los parametros que deseo imprimir
         Vector<Vector> datos = new Vector<>();
@@ -456,12 +471,23 @@ public class LogicaSQL {
             System.out.println("");
         }
         
+        System.out.println("Parametros de la consulta:");
+        HashMap<String,Object[]> parametrosConsulta = recibe.getParametrosConsulta();
+        Object[] parall = parametrosConsulta.keySet().toArray();
+        for(Object llave:parall){
+            System.out.println("ComandoSQL: " + llave);
+            Object[] paramC = parametrosConsulta.get(llave);
+            for(Object parametro:paramC){
+                System.out.println(parametro);
+            }
+        }
+        
   
     }
     
     public static void main(String args[]){
         
-        LogicaSQL prueba = new LogicaSQL("SELECT \n EMAIL, \n manager_id  FROM tabla; WHERE j;","hola.txt");
+        LogicaSQL prueba = new LogicaSQL("SELECT \n EMAIL, \n manager_id  FROM tabla WHERE j;","hola.txt");
         
         System.out.println("prueba = " + prueba.getConsulta());
         
