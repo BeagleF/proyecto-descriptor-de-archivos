@@ -195,7 +195,10 @@ public class DescriptorArchivos {
         AtributoTabla[] atributosArreglo = new AtributoTabla[control];//defino un arreglo de AtributoTabla en base a la cantidad de atributos totales
         //en la tabla que se esta leyendo
         int indice = 0;
-        for(int contador = 1;contador<=control;contador++){
+        for(int contador = 1;contador<=control;contador++){//el contador inicia desde 1 porque en la posicion cero de 
+            //la primera de la linea del archivo se encuentra el nombre de la tabla, entonces los atributos se encuentran
+            //a partir de la posicion[1] en las dos siguientes estan sus limites y luego sigue el sig atributo y asi
+            //sucesivamente
             int vaciado=3*contador;//esto es porque al ser 3 valores los que se quieren guardar por cada atributo
             //de la tabla, el primero es el nombre, luego la posicion inicial de ese atributo en el registro
             //y luego cuando termina
