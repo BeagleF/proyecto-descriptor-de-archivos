@@ -60,13 +60,60 @@ public class LogicaSQL {
         }
         System.out.println("al inicio es");
         System.out.println("ve = " + ve);
-        ve = ve.replace("=", " = ");
-        ve = ve.replace(">", " > ");
-        ve = ve.replace("<", " < ");
-        ve = ve.replace("<=", " <= ");
-        ve = ve.replace(">", " >= ");
         
         
+        String[] condicionesWhere = {"=",">","<","<=",">="};//estas son las posibles condiciones que puede
+        //llegar a tener el where        
+        
+//        for(int i = 0;i<ve.length();i++){//voy a recorrer la cadena formada por los argumentos del comando where
+//            //y voy a buscar en ella a las condiciones del arreglo anterior, en caso de que se encuentre una secuencua
+//            //equivalente a las condiciones entonces voy a realizar una funcion para separar con espacios en esa cadena
+//            //pero dependiendo de la condicion con la que me encuentre, en caso de que haya una
+//            if(i>0){
+//                for(String car: condicionesWhere){
+//                    if(car.equals(ve.charAt(i))){
+//                    }
+//                }
+//            }
+//        }
+        String antes = ve;//voy a guardar el estado de la cadena que tiene a los parametros del comando where antes
+        //de que la modifique
+        boolean sigue = true;//creo una bandera para que me indique si es que la cadena a sufrido modificaciones
+        
+            
+        ve = ve.replace("<=", " <= ");//estas dos operaciones buscan la una secuencia de caracteres
+        //especifica, en caso de que la cadena ve tenga esa secuencia realiza la separacion, no importa que se ejecuten
+        //seguidas porque son secuencias distintas, si es que alguna de estas modificaciones surge efecto entonces quiero
+        //saber que se realizo ese cambio, por eso se aplica la bandera
+        ve = ve.replace(">=", " >= ");
+            
+        if(ve.equals(antes) == false){
+            sigue = false;
+        }
+        
+        
+        if(sigue){//no quiero ejecutar estas condiciones en caso de que ha haya hecho una modificacion porque estas al solo
+            //tener un caracter aunque ya haya hecho una modificacion antes van a hacer otra, ejemplo, si tenia el comando:
+            //"WHERE id<=50" al inicio se iba a separar de manera que quedaba "WHERE id <= 50", pero si las operaciones de
+            //abajo se ejecutaban entonces se iba a separar de manera que "WHERE id < =  50" y luego otra vez por la 
+            //condicion que verifica si hay un '<' y queda al final "WHERE id  <  =  50" lo que es incorrecto y luego
+            //esos varios espacio se reducirian a 1 cada conjunto de espacios, pero quedan mas argumentos de los que realmente
+            //eran
+            ve = ve.replace("=", " = ");
+            ve = ve.replace(">", " > ");
+            ve = ve.replace("<", " < ");
+        }
+        
+////        ve = ve.replace("=", " = ");
+////        ve = ve.replace(">", " > ");
+////        ve = ve.replace("<", " < ");
+////        ve = ve.replace("<=", " <= ");
+////        ve = ve.replace(">=", " >= ");
+        
+        ve = ve.replaceAll("BETWEEN", " BETWEEN ");//estas operaciones se preguntan despues de las anteriores
+        //en caso de se encuentren las palabras between y and, no deben estar las anteriores porque seria un error de sintaxis
+        //entonces estas operaciones no se tienen que condicionar, no hace falta
+        ve = ve.replaceAll("AND", " AND ");
         ve = ve.replaceAll("\\s+", " ");
         
         System.out.println("ve = " + ve);
@@ -75,8 +122,8 @@ public class LogicaSQL {
         
         switch(nuevo.length){
             case 3:
-                String[] condicionesWhere = {"=",">","<","<=",">="};//estas son las posibles condiciones que puede
-                //llegar a tener el where
+//                String[] condicionesWhere = {"=",">","<","<=",">="};//estas son las posibles condiciones que puede
+//                //llegar a tener el where
                 boolean condicion = false;//se va a verificar que el segundo parametro del comando WHERE sea alguna
                 //de las condiciones anteriores, en caso de serlo significa que es correcto, si nunca coincide
                 //entonces se trata de hacer una operacion no permitida y se regresa un error
@@ -126,16 +173,7 @@ public class LogicaSQL {
                      return null;
         }
         
-        if(nuevo.length >2 && nuevo.length<5){
-            if(nuevo.length == 3){
-                
-                
-            }else if(nuevo.length == 4){
-                
-            }
-        }else{
-            return null;
-        }
+       
         
         System.out.println("Parametros nuevos de where");
         int cont =0;
@@ -417,9 +455,8 @@ public class LogicaSQL {
                 return null;
             }
             parametrosPorComando.remove("WHERE");
-            
             parametrosPorComando.put("WHERE", sintaxisWhere(parametrosdelWhere));
-            }
+            }//fin de la comprobacion de si esta el comando WHERE y su comprobacion de sintaxis
             
         
         if(comprobadorFrom!=1){//solo debe haber un parametro en para el Comando FROM , en caso de haber mas de uno
@@ -529,6 +566,63 @@ public class LogicaSQL {
         //ahora debo verificar que los parametros de WHERE realmente existan en la tabla, que solo es uno de hecho, esta
         //comprobacion solo se hace en caso de que se haya ejecutado el comando WHERE, en caso contrario no se realiza
         
+        if(parametrosConsulta.get("WHERE")!=null){//en caso de que se haya ejecutado el comando WHERE ahora debo
+            //comprobar que su primer parametro se encuentre en la tabla, pues es a quien voy a realizarle las
+            //comparaciones
+            Object[] parametrosWhere = parametrosConsulta.get("WHERE");
+            Object parametroWhere = parametrosWhere[0];//como solo necesito al primer parametro ingresado para el comando
+            //WHERE entonces lo saco de esta forma del arreglo que tiene todos los parametros de ese comando
+            String param = parametroWhere.toString();//convierto a una cadena el primer parametro del comando WHERE para
+            //que lo pueda usar en el comando del HashMap de posicionesAtributos, porque si ingreso el primer parametro
+            //del comando WHERE en este HashMap me debe devolver algun numero entero, pero en caso de que se devuelva
+            //nulo significa que no hay ningun atributo guardado con ese nombre por lo que asi se hace la comprobacion
+            //este metodo se puede usar o tambien el otro de los fors anidados que se usa para la comprobacion en SELECT
+            if(posicionesAtributos.get(param)==null){
+                System.out.println("ERROR: no se encontro al parametro " + param +" en la tabla: " + nombreTabla + " que usa el comando WHERE");
+                return null;
+            }
+            boolean numerico = false;
+            if(parametrosWhere.length == 3){//en caso de que haya solo 3 parametros para el comando WHERE debo verificar
+                //si es que se trata de los casos para ">","<","<=",">=", porque para esos necesito garantizar que se trata
+                //de un numero, en este caso como antes habia hecho la condicion para el BETWEEN AND , y ese ya se encarga
+                //de verificar si es un numero, no voy a colocar de nuevo lo que ya hace esa funcion entonces, con una
+                //bandera voy a indicar que quiero que se revise que el primer parametro de la consulta sea uno que 
+                //pueda manejarse como numerico, se va a poner como true en caso de que el segundo parametro del comando
+                //where en la consulta sea alguno de los simbolos anteriores 
+                String[] condicionesWhere = {">","<","<=",">="};//estas son las posibles condiciones que puede
+                //llegar a tener el where para cuando necesito verificar que el primer parametro sea un numero
+                boolean condicion = false;//se va a verificar que el segundo parametro del comando WHERE sea alguna
+                //de las condiciones anteriores, en caso de serlo significa que es correcto, si nunca coincide
+                //entonces se trata de hacer una operacion no permitida y se regresa un error
+                for(String condiciones:condicionesWhere){
+                    if(parametrosWhere[1].equals(condiciones)){//aqui se va a checar si es que el segundo parametro
+                        //del comando where es alguno de los anteriores
+                        numerico = true;
+                        break;
+                    }
+                }
+                
+            }
+            
+            if(parametrosWhere.length == 5 || numerico){//si es que la cantidad de parametros del where es de cinco significa que
+                //se esta ejecutando un WHERE con las condiciones del "BETWEEN AND" por lo que como esta funcion
+                //solo maneja numeros debo asegurarme de que el parametro con el que voy a realizar las comparaciones
+                //se pueda convertir a un numero sin problema
+                int posicion = posicionesAtributos.get(param);
+                for(Vector fila: grande){
+                    try{
+                        String convertir = fila.get(posicion).toString();//convierto lo que obtenga en la fila que
+                        //esta en la columna del atributo en el que voy a hacer las comparaciones y voy a tratar de ver
+                        //que ocurre cuando trato de convertir a cada uno en un numero, si es que todos se pueden 
+                        //convertir sin problema, entonces el comando WHERE con el BETWEEN se podra ejecutar sin problema
+                        Double.parseDouble(convertir);
+                    }catch(NumberFormatException e){
+                        System.out.println("ERROR: PARA poder ejecutar el where con estas condiciones el parametro a comparar debe ser numerico");
+                    }
+                }
+            }
+        }
+        
         ParametrosConsulta retorno = new ParametrosConsulta(parametrosConsulta, posicionesAtributos, grande, ordenImpresion);
         //retorno una objeto con las herramientas necesarias para poder ejecutar la consulta que se solicita
         return retorno;
@@ -563,7 +657,11 @@ public class LogicaSQL {
             
             comandoWhere cw = new comandoWhere(grande,parametrosWhere,ubicacion);
             //grande = cw.igualWhere();
-            grande = cw.mayorWhere();
+            grande = cw.aplicacionWhere();
+            if(grande == null){
+                System.out.println("ERROR: HUBO UN ERROR A LA HORA DE HACER LAS COMPARACIONES CON EL COMANDO WHERE");
+                return;
+            }
         }
         
         
@@ -627,7 +725,7 @@ public class LogicaSQL {
     
     public static void main(String args[]){
         
-        LogicaSQL prueba = new LogicaSQL("SELECT \n EMAIL, \n manager_id  FROM tabla; WHERE employee_id==120; ","hola.txt");
+        LogicaSQL prueba = new LogicaSQL("SELECT \n employee_id, \n first_name,salary  ,manager_id  FROM tabla WHERE salary between 2500 AND 15000; ","hola.txt");
         
         System.out.println("prueba = " + prueba.getConsulta());
         
