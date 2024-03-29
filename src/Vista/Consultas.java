@@ -143,6 +143,12 @@ public class Consultas extends JFrame{
                 bEjecutaractionPerformed(e);
             }
         });
+
+        bLimpiar.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                crearJTable();
+            }
+        });
         
 
     }
