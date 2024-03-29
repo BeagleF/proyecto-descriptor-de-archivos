@@ -5,6 +5,7 @@
 package ControlConsultas;
 
 import EstructurasDeDatosTemporales.DescriptorArchivos;
+import EstructurasDeDatosTemporales.MostarEnTabla;
 import EstructurasDeDatosTemporales.ParametrosConsulta;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -167,6 +168,7 @@ public class LogicaSQL {
                     
                 }catch(NumberFormatException e){
                     System.out.println("ERROR: LOS VALORES PARA LA COMPARACION \"BETWEEN\" \"AND\" NO SON VALIDOS");
+                    return null;
                 }
                 break;
             default: System.out.println("ERROR:  Los parametros del WHERE NO SON CORRECTOS");
@@ -297,6 +299,7 @@ public class LogicaSQL {
             //de ordenInstrucciones tiene guardadas las posiciones de los comandos ingresados en la consulta
             if(accionesConsulta[ordenInstrucciones[i]+1].equals(",")){
             System.out.println("La sintaxis de la consulta no puede tener una coma seguida de un comando SQL");
+            return null;
             }
             if(i>0 && accionesConsulta[ordenInstrucciones[i]-1].equals(",")){// se comprueba que antes del comando
                 //SQL no se encuentre una coma, a excepcion de cuando se trate de un SELECT pues ese se encuentra al
@@ -629,12 +632,12 @@ public class LogicaSQL {
         
     }
     
-    public void ejecutarConsulta(){//falta agregar lo de comprobar sintaxis
+    public MostarEnTabla ejecutarConsulta(){//falta agregar lo de comprobar sintaxis
         ParametrosConsulta recibe = diccionarioDeDatos();
         
         if(recibe == null){
             System.out.println("ERROR: LA CONSULTA NO SE PUEDE EJECUTAR");
-            return;
+            return null;
         }
         
         String[] impresion = new String[recibe.getOrdenImpresion().length];//creo un arreglo de cadenas que va a tener
@@ -660,8 +663,10 @@ public class LogicaSQL {
             grande = cw.aplicacionWhere();
             if(grande == null){
                 System.out.println("ERROR: HUBO UN ERROR A LA HORA DE HACER LAS COMPARACIONES CON EL COMANDO WHERE");
-                return;
+                return null;
             }
+
+
         }
         
         
@@ -720,6 +725,9 @@ public class LogicaSQL {
             }
         }
         
+        MostarEnTabla tabla = new MostarEnTabla(datos,recibe.getOrdenImpresion());
+
+        return tabla;
   
     }
     

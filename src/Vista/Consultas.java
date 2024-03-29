@@ -3,165 +3,182 @@ package Vista;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
-import javax.swing.border.Border;
-import javax.swing.border.EtchedBorder;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
+import javax.swing.table.DefaultTableModel;
 
+import ControlConsultas.LogicaSQL;
+import EstructurasDeDatosTemporales.MostarEnTabla;
 import Services.ObjGraficosService;
+import Services.RecursosService;
+
 import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Font;
-import java.awt.FontFormatException;
-import java.awt.GraphicsEnvironment;
-import java.io.File;
-import java.io.IOException;
+import java.awt.event.ActionEvent;
+import java.util.Vector;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 
 public class Consultas extends JFrame{
 
     private ObjGraficosService sObjGraficos;
+    private RecursosService sRecursos;
+    private LogicaSQL sLogicaSQL;
 
     private JPanel pDebajo, pIzquierda,pDerecha;
     private JLabel lTituloVentana,lTablaFinal,lTablaProceso,lAcciones,lFondo;
     private JTextArea tAreaConsulta;
     private JButton bEjecutar,bLimpiar,bSiguiente;
-    private Color colorBoton,colorFondo,colorBordeBoton,colorBordeTabla1,colorBordeTabla2;
-    private Font fontTitulo,fontSubtitulo,fontBotones;
-    private Cursor cMano;
-    private Border bordeBoton,bordeTabla;
-    //private ImageIcon iFondo;
+
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable Tabla;
+    DefaultTableModel mt = new DefaultTableModel();
+    
 
     public Consultas() {
         super("Generador de consultas");
-
-        //iFondo = new ImageIcon("resources/images/Engranes.jpg");
+        
+        sObjGraficos = ObjGraficosService.getService();
+        sRecursos = RecursosService.getService();
         
 
-        this.generarFuentes();
+        this.crearJpanels();
 
-        fontTitulo = new Font("Copyduck", Font.PLAIN, 14);
+        this.crearJlabels();
 
-        colorFondo = new Color(23, 165, 137);
-        colorBoton = new Color(0x2C3E50);
-        //colorBordeBoton = new Color(26, 82, 118 );
-        colorBordeTabla1 = new Color(212, 172, 13);
-        colorBordeTabla2 = new Color(31, 97, 141 );
+        this.crearJtextAreas();
 
-        cMano = new Cursor(Cursor.HAND_CURSOR);
-
-        bordeTabla = BorderFactory.createEtchedBorder(EtchedBorder.RAISED,colorBordeTabla1,colorBordeTabla2);
-        bordeBoton = BorderFactory.createRaisedBevelBorder();
-        //bordeBoton = BorderFactory.createLineBorder(colorBordeBoton,2,true);
+        this.crearJbuttons();
         
-
-        
-
-        pDebajo = new JPanel();
-        pDebajo.setSize(1000,300);
-        pDebajo.setLocation(0,200);
-        pDebajo.setBackground(Color.green);
-        pDebajo.setLayout(null);
-        this.add(pDebajo);
-
-        pIzquierda = new JPanel();
-        pIzquierda.setSize(700,200);
-        pIzquierda.setLocation(0,0);
-        pIzquierda.setBackground(Color.blue);
-        pIzquierda.setLayout(null);
-        this.add(pIzquierda);
-
-        
-
-        pDerecha = new JPanel();
-        pDerecha.setSize(300,200);
-        pDerecha.setLocation(700,0);
-        pDerecha.setBackground(colorFondo);
-        pDerecha.setLayout(null);
-        this.add(pDerecha);
-        
-        //lFondo = new JLabel();
-        //lFondo.setBounds(0, 0, 300, 200);
-        //lFondo.setIcon(iFondo);
-        //pDerecha.add(lFondo);
-
-
-        lTituloVentana = new JLabel("Generador de consultas");
-        lTituloVentana.setBounds(25, 10, 200, 30);
-        lTituloVentana.setForeground(Color.white);
-        lTituloVentana.setFont(fontTitulo);
-        pIzquierda.add(lTituloVentana);
-
-        lTablaProceso = new JLabel("Tabla de proceso");
-        lTablaProceso.setBounds(25, 10, 200, 30);
-        lTablaProceso.setForeground(Color.white);
-        pDebajo.add(lTablaProceso);
-
-        lAcciones = new JLabel("Acciones");
-        lAcciones.setBounds(110, 10, 200, 30);
-        lAcciones.setForeground(Color.white);
-        pDerecha.add(lAcciones);
-
-        tAreaConsulta = new JTextArea("SELECT +  employee_id, + first_name,salary  ,manager_id FROM tabla WHERE salary between 2500 AND 15000;");
-        tAreaConsulta.setBounds(25, 40, 650, 145);
-        tAreaConsulta.setLineWrap(true);
-        tAreaConsulta.setFont(new Font("ARIAL", Font.BOLD, 12));
-        tAreaConsulta.setBorder(bordeTabla);
-        pIzquierda.add(tAreaConsulta);
-
-        bEjecutar = new JButton("Ejecutar");
-        bEjecutar.setBounds(85, 40, 100, 30);
-        bEjecutar.setBackground(colorBoton);
-        bEjecutar.setForeground(Color.white);
-        bEjecutar.setFocusable(false);
-        bEjecutar.setBorder(bordeBoton);
-        pDerecha.add(bEjecutar);
-
-        bLimpiar = new JButton("Limpiar");
-        bLimpiar.setBounds(85, 80, 100, 30);
-        bLimpiar.setBackground(colorBoton);
-        bLimpiar.setForeground(Color.white);
-        bLimpiar.setFocusable(false);
-        bLimpiar.setBorder(bordeBoton);
-        pDerecha.add(bLimpiar);
-
-        bSiguiente = new JButton("Siguiente");
-        bSiguiente.setBounds(85, 120, 100, 30);
-        bSiguiente.setBackground(colorBoton);
-        bSiguiente.setForeground(Color.white);
-        bSiguiente.setFocusable(false);
-        bSiguiente.setBorder(bordeBoton);
-        pDerecha.add(bSiguiente);
-
-        bEjecutar.setCursor(cMano);
-        bLimpiar.setCursor(cMano);
-        bSiguiente.setCursor(cMano);
-        
-
-
-
         setLayout(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(1000,500);
         setLocationRelativeTo(this);
         setVisible(true);
 
+        String id [] = {"Tabla de consultas"};
+
+        this.crearJTable();
+
+        mt.setColumnIdentifiers(id);
+        Tabla.setModel(mt);
+
+    }
+
+    private void crearJTable(){
+
+        jScrollPane1 = new javax.swing.JScrollPane();
+        Tabla = new javax.swing.JTable();
+
+        Tabla.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null},
+                {null},
+                {null},
+                {null}
+            },
+            new String [] {
+                "Tabla de consultas"
+            }
+        ));
+        
+        
+        jScrollPane1.setViewportView(Tabla);
+        jScrollPane1.setBounds(0, 200, 1000, 300);
+        this.add(jScrollPane1);
+
+        //tabla = new JTable(mt);
+        Tabla.setBounds(0, 200, 1000, 300);
+        
+        
+    }
+
+    private void crearJpanels(){
+        //pDebajo = sObjGraficos.construirJPanel(0, 200, 1000, 300, sRecursos.getColorFondo(), null);
+        //this.add(pDebajo);
+
+        pIzquierda = sObjGraficos.construirJPanel(0, 0, 700, 200, sRecursos.getColorFondo(), null);
+        this.add(pIzquierda);
+
+        pDerecha = sObjGraficos.construirJPanel(700, 0, 300, 200, sRecursos.getColorFondo(), null);
+        this.add(pDerecha);
+    }
+
+    private void crearJlabels(){
+        lTituloVentana = sObjGraficos.construirJLabel("Generador de consultas", 25, 10, 200, 30, Color.white, Color.white, sRecursos.getFontTitulo());
+        pIzquierda.add(lTituloVentana);
+        
+        //lTablaProceso = sObjGraficos.construirJLabel("Tabla de proceso", 25, 10, 200, 30, Color.white, Color.white, sRecursos.getFontTitulo());
+        //pDebajo.add(lTablaProceso);
+
+        lAcciones = sObjGraficos.construirJLabel("Acciones", 110, 10, 200, 30, Color.white, Color.white, sRecursos.getFontTitulo());
+        pDerecha.add(lAcciones);
+
+    }
+
+    private void crearJtextAreas(){
+        tAreaConsulta = sObjGraficos.construirJTextArea("SELECT  employee_id, first_name,salary  ,manager_id FROM tabla WHERE salary between 2500 AND 15000;", 25, 40, 650, 145, Color.white, Color.black, sRecursos.getFontArial(), true);
+        pIzquierda.add(tAreaConsulta);
+
+    }
+
+    private void crearJbuttons(){
+        
+
+        bEjecutar = sObjGraficos.construirJButton("Ejecutar", 85, 40, 100, 30, sRecursos.getColorBoton(), Color.white, sRecursos.getFontBotones(), sRecursos.getcMano(), sRecursos.getBordeBoton(), false);
+        pDerecha.add(bEjecutar);
+
+        bLimpiar = sObjGraficos.construirJButton("Limpiar", 85, 80, 100, 30, sRecursos.getColorBoton(), Color.white, sRecursos.getFontBotones(), sRecursos.getcMano(), sRecursos.getBordeBoton(), false);
+        pDerecha.add(bLimpiar);
+
+        bSiguiente = sObjGraficos.construirJButton("Siguiente", 85, 120, 100, 30, sRecursos.getColorBoton(), Color.white, sRecursos.getFontBotones(), sRecursos.getcMano(), sRecursos.getBordeBoton(), false);
+        pDerecha.add(bSiguiente);
+
+
+        
+        bEjecutar.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                bEjecutaractionPerformed(e);
+            }
+        });
         
 
     }
 
-    private void generarFuentes(){
-        try {
-            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+    private void bEjecutaractionPerformed(ActionEvent e){ 
 
-            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("resources/fonts/Copyduck.ttf")));
+        try{
+
+            crearJTable();
+
+            sLogicaSQL = new LogicaSQL(tAreaConsulta.getText(),"tabla");
+            sLogicaSQL.ejecutarConsulta();
+
             
-        } catch (IOException | FontFormatException e) {
-            System.out.println(e);
+
+            MostarEnTabla datosTabla = sLogicaSQL.ejecutarConsulta();
+
+            if(datosTabla == null){
+                JOptionPane.showMessageDialog(null, "Error al procesar la consulta");
+            }
+            Vector<Vector> datos = datosTabla.getDatos();
+            String[] columnas = datosTabla.getColumnas();
+            
+            mt.setColumnIdentifiers(columnas);
+
+            for(int i = 0; i < datos.size(); i++){
+                mt.addRow(datos.get(i));
+            }
+            Tabla.setModel(mt);
+        }catch(Exception ex){
+            System.out.println("Error en la consulta");
         }
+        
+
     }
+
 
     public static void main(String[] args) {
         Runnable runApplication = new Runnable() {
